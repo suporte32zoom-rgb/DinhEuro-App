@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Background Gradient: Europe Blue to Brazil Green -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003399" />
+      <stop offset="45%" stop-color="#002b66" />
+      <stop offset="70%" stop-color="#008037" />
+      <stop offset="100%" stop-color="#009c3b" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff176" />
+      <stop offset="50%" stop-color="#ffcc00" />
+      <stop offset="100%" stop-color="#f57f17" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  <path d="M100,12 C148,12 186,28 186,68 C186,134 134,178 100,192 C66,178 14,134 14,68 C14,28 52,12 100,12 Z" 
+        fill="url(#bgGrad)" 
+        stroke="url(#goldGrad)" 
+        stroke-width="5" 
+        filter="url(#shadow)" />
+  <polygon points="100,68 152,100 100,132 48,100" fill="none" stroke="#fedf00" stroke-width="3" opacity="0.4" />
+  <text x="100" y="118" 
+        font-family="system-ui, -apple-system, sans-serif" 
+        font-size="68" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle" 
+        letter-spacing="-2"
+        filter="drop-shadow(0 3px 6px rgba(0,0,0,0.5))">
+    D€
+  </text>
+  <circle cx="100" cy="100" r="74" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="6,4" />
+</svg>

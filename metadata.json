@@ -1,0 +1,6 @@
+{
+  "name": "DinhEuro AI - Financial Intelligence Engine",
+  "description": "O motor supremo de inteligência financeira para câmbio global, comércio no corredor Mercosul-União Europeia, macroeconomia, eficiência tributária e movimentação de patrimônio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
