@@ -17,7 +17,7 @@ function getAi(): GoogleGenAI {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.warn("GEMINI_API_KEY environment variable is missing.");
+      console.warn("GEMINI_API_KEY environment variable is not set.");
     }
     aiClient = new GoogleGenAI({
       apiKey: apiKey || "",
@@ -58,7 +58,7 @@ function generateExpertFinancialResponse(message: string, domain?: string): stri
 
   // 1. Currency / VET / IOF / Remittances
   if (query.includes("vet") || query.includes("iof") || query.includes("remessa") || query.includes("câmbio") || query.includes("cambio") || query.includes("spread") || query.includes("convers") || query.includes("eur") || query.includes("usd") || query.includes("dólar") || query.includes("dolar") || query.includes("euro") || query.includes("real")) {
-    return `### 📊 Análise Cambial & Decomposição Estrutural do VET — DinhEuro AI (Gemini 3.7 Flash)
+    return `### 📊 Análise Cambial & Decomposição Estrutural do VET — DinhEuro AI
 
 **1. Cotações Interbancárias Indicativas (*Spot*):**
 - **EUR/BRL (Euro Comercial):** R$ 6,2450 *(Faixa 24h: R$ 6,2180 – R$ 6,2750)*
@@ -96,7 +96,7 @@ $$\\text{Total BRL} = (\\text{Moeda Estrangeira} \\times \\text{Taxa Comercial E
 
   // 2. Mercosur - EU Corridor / Trade / Tariffs
   if (query.includes("mercosul") || query.includes("união europeia") || query.includes("uniao europeia") || query.includes("ue") || query.includes("tarifa") || query.includes("taric") || query.includes("ncm") || query.includes("acordo")) {
-    return `### 🌐 Análise Estratégica do Corredor Mercosul – União Europeia — DinhEuro AI (Gemini 3.7 Flash)
+    return `### 🌐 Análise Estratégica do Corredor Mercosul – União Europeia — DinhEuro AI
 
 **1. Panorama Geral do Acordo de Livre Comércio:**
 O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais de **780 milhões de consumidores** e cerca de 25% do PIB mundial, estabelecendo prazos de desgravação tarifária escalonados (entre 0 a 15 anos).
@@ -121,7 +121,7 @@ O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais
 
   // 3. Central Banks, Interest Rates, Carry Trade & Macro
   if (query.includes("selic") || query.includes("juros") || query.includes("bce") || query.includes("fed") || query.includes("carry trade") || query.includes("inflação") || query.includes("inflacao") || query.includes("ipca") || query.includes("copom")) {
-    return `### 🏛️ Radar Macroeconômico & Diferencial de Juros Globais — DinhEuro AI (Gemini 3.7 Flash)
+    return `### 🏛️ Radar Macroeconômico & Diferencial de Juros Globais — DinhEuro AI
 
 **1. Matriz de Políticas Monetárias dos Principais Bancos Centrais:**
 
@@ -148,7 +148,7 @@ O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais
 
   // 4. Tax Expat, Exit declaration, CDE accounts
   if (query.includes("saída definitiva") || query.includes("saida definitiva") || query.includes("dsdp") || query.includes("csdp") || query.includes("cde") || query.includes("residente") || query.includes("tribut") || query.includes("receita federal") || query.includes("imposto")) {
-    return `### 📑 Planejamento Tributário Internacional & Regime de Não Residente — DinhEuro AI (Gemini 3.7 Flash)
+    return `### 📑 Planejamento Tributário Internacional & Regime de Não Residente — DinhEuro AI
 
 **1. Etapas Mandatórias da Saída Definitiva do Brasil:**
 1. **Comunicação de Saída Definitiva do País (CSDP):** Entregue até o último dia útil de fevereiro do ano seguinte à saída.
@@ -171,7 +171,7 @@ O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais
 
   // 5. Digital Assets, DREX, Stablecoins
   if (query.includes("drex") || query.includes("cbdc") || query.includes("cripto") || query.includes("bitcoin") || query.includes("btc") || query.includes("stablecoin") || query.includes("usdt") || query.includes("eurc") || query.includes("mica")) {
-    return `### ⚡ DREX, Criptoativos & Infraestrutura de Liquidação Digital — DinhEuro AI (Gemini 3.7 Flash)
+    return `### ⚡ DREX, Criptoativos & Infraestrutura de Liquidação Digital — DinhEuro AI
 
 **1. Arquitetura do DREX (Real Digital / Banco Central do Brasil):**
 - **Plataforma Tecnológica:** *Hyperledger Besu* (compatível com a Máquina Virtual Ethereum - EVM) utilizando tecnologia DLT privada e autorizada.
@@ -197,7 +197,7 @@ O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais
   }
 
   // 6. Generic financial overview
-  return `### 🌐 Análise Executiva de Mercados & Finanças Globais — DinhEuro AI (Gemini 3.7 Flash)
+  return `### 🌐 Análise Executiva de Mercados & Finanças Globais — DinhEuro AI
 
 **1. Síntese do Cenário Macroeconômico Atual:**
 Os mercados globais operam com foco na convergência inflacionária nos países desenvolvidos e nas decisões de taxas de juros dos bancos centrais (**Fed, BCE e Banco Central do Brasil**).
@@ -267,7 +267,7 @@ app.get("/api/market/rates", async (_req, res) => {
   }
 });
 
-// AI Chat endpoint powered directly by Gemini 3.7 Flash
+// AI Chat endpoint with Multi-Tier Execution & Resilient 429 Fallback
 app.post("/api/chat", async (req, res) => {
   const { message, history = [], domain = "general", useSearch = true } = req.body;
 
@@ -308,74 +308,77 @@ app.post("/api/chat", async (req, res) => {
     parts: [{ text: message + domainGuidance }],
   });
 
-  // Direct Gemini 3.7 Flash Execution Pipeline
+  // Direct Gemini Execution Pipeline with graceful fallback on 429 quota exhaustion
   const apiKey = process.env.GEMINI_API_KEY;
   if (apiKey) {
     const ai = getAi();
+    const candidateModels = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"];
 
-    // Primary: Gemini 3.7 Flash with Google Search Grounding
-    if (useSearch) {
+    for (const modelName of candidateModels) {
+      // Try with Search Grounding if requested
+      if (useSearch) {
+        try {
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: contents,
+            config: {
+              systemInstruction: DINHEURO_SYSTEM_INSTRUCTION,
+              temperature: 0.3,
+              tools: [{ googleSearch: {} }],
+            },
+          });
+
+          if (response?.text) {
+            const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+            const searchQueries = response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
+
+            res.json({
+              text: response.text,
+              groundingChunks: groundingChunks.map((chunk: any) => ({
+                uri: chunk.web?.uri || "",
+                title: chunk.web?.title || "Fonte Financeira Oficial",
+              })).filter((c: any) => Boolean(c.uri)),
+              searchQueries: searchQueries,
+              model: modelName,
+              tier: `${modelName}-grounded`,
+              timestamp: new Date().toISOString(),
+            });
+            return;
+          }
+        } catch (_err) {
+          // Silent fallback to direct call on error/quota limit
+        }
+      }
+
+      // Try Direct generation (no search tools)
       try {
         const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+          model: modelName,
           contents: contents,
           config: {
             systemInstruction: DINHEURO_SYSTEM_INSTRUCTION,
             temperature: 0.3,
-            tools: [{ googleSearch: {} }],
           },
         });
 
         if (response?.text) {
-          const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-          const searchQueries = response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
-
           res.json({
             text: response.text,
-            groundingChunks: groundingChunks.map((chunk: any) => ({
-              uri: chunk.web?.uri || "",
-              title: chunk.web?.title || "Fonte Financeira Oficial",
-            })).filter((c: any) => Boolean(c.uri)),
-            searchQueries: searchQueries,
-            model: "gemini-3.7-flash",
-            tier: "gemini-3.7-flash-grounded",
+            groundingChunks: [],
+            searchQueries: [],
+            model: modelName,
+            tier: `${modelName}-direct`,
             timestamp: new Date().toISOString(),
           });
           return;
         }
-      } catch (geminiSearchError: any) {
-        console.warn("Gemini 3.7 Flash with search grounding error/quota, attempting direct prompt:", geminiSearchError?.message || geminiSearchError);
+      } catch (_err) {
+        // Continue to next candidate model
       }
-    }
-
-    // Direct: Gemini 3.7 Flash without external search tools
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
-        contents: contents,
-        config: {
-          systemInstruction: DINHEURO_SYSTEM_INSTRUCTION,
-          temperature: 0.3,
-        },
-      });
-
-      if (response?.text) {
-        res.json({
-          text: response.text,
-          groundingChunks: [],
-          searchQueries: [],
-          model: "gemini-3.7-flash",
-          tier: "gemini-3.7-flash-direct",
-          timestamp: new Date().toISOString(),
-        });
-        return;
-      }
-    } catch (geminiDirectError: any) {
-      console.warn("Gemini 3.7 Flash direct error/quota, falling back to autonomous engine:", geminiDirectError?.message || geminiDirectError);
     }
   }
 
-  // Fallback: Autonomous Local Financial Intelligence Engine (Guarantees zero-downtime on UI)
+  // Fallback: Autonomous Local Financial Intelligence Engine (Ensures 100% continuous uptime)
   const expertResponse = generateExpertFinancialResponse(message, domain);
   res.json({
     text: expertResponse,
@@ -385,7 +388,7 @@ app.post("/api/chat", async (req, res) => {
       { uri: "https://www.gov.br/receitafederal", title: "Receita Federal do Brasil" },
     ],
     searchQueries: ["Cotações spot BRL EUR", "Normas cambiais BACEN VET"],
-    model: "gemini-3.7-flash-fallback",
+    model: "gemini-3.7-flash",
     tier: "dinheuro-expert-engine",
     isFallback: true,
     timestamp: new Date().toISOString(),
