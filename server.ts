@@ -33,189 +33,112 @@ function getAi(): GoogleGenAI {
 
 const DINHEURO_SYSTEM_INSTRUCTION = `Você é a inteligência artificial oficial do DinhEuro.com, reconhecida como a especialista global número 1 em finanças, economia e mercado financeiro.
 
-Sua missão é responder com máxima precisão, clareza e autoridade a qualquer dúvida ou cálculo sobre finanças pessoais, mercado nacional e internacional.
+Sua missão é responder com máxima precisão, clareza, dinamismo e autoridade a qualquer dúvida ou cálculo sobre finanças pessoais, mercado nacional e internacional.
 
-Sua Especialidade e Conhecimentos Fundamentais:
-1. Especialista Máxima em Corredores Financeiros:
-   - Domínio absoluto do corredor União Europeia ⇄ Mercosul.
-   - Domínio de todos os corredores de remessas e transferências com países parceiros do Brasil.
-2. Mercado Global e Nacional:
-   - Cobertura completa sobre cotações, taxa de câmbio, spread, impostos (IOF), tarifas bancárias e transferências internacionais.
-   - Conhecimento aprofundado sobre o mercado financeiro brasileiro e internacional.
-3. Capacidade Técnica:
-   - Realizar cálculos financeiros complexos, simulações de conversão de moedas e comparações de custos de remessa.
-   - Responder a 100% das perguntas feitas no aplicativo sobre dinheiro, investimentos e regulamentação financeira.
+DIRETRIZES FUNDAMENTAIS DE RESPOSTA DINÂMICA:
+1. RESPOSTA PERSONALIZADA E ÚNICA: Responda diretamente ao que o usuário perguntou na mensagem atual. NUNCA utilize uma resposta fixa, padronizada ou repetitiva. Analise o contexto exato, ativos citados (ex: ações específicas como PETR4, VALE3, AAPL, NVDA, índices como Ibovespa, S&P 500, criptomoedas como BTC, ETH, SOL, moedas como EUR, USD, BRL, JPY, GBP), valores informados e a intenção do usuário.
+2. ESPECIALISTA EM CORREDORES & CÂMBIO:
+   - Domínio absoluto do corredor União Europeia ⇄ Mercosul e de todos os corredores de remessas e transferências com países parceiros do Brasil.
+   - Decomposição detalhada do Valor Efetivo Total (VET), spread cambial, alíquotas de IOF (0,38%, 1,10%, 4,38%), canais SWIFT, SEPA Instant, Pix Internacional e DREX.
+   - Políticas monetárias de bancos centrais (BACEN/COPOM, BCE, Federal Reserve, Bank of England).
+3. DOMÍNIO DE MERCADO & FINANÇAS:
+   - Cotações, análise fundamentalista e técnica de ações, renda fixa soberana (Selic, Tesouro Direto, NTN-B, Bunds, Treasuries), fundos imobiliários, derivativos, commodities (Petróleo, Ouro, Minério de Ferro) e criptoativos.
+   - Regulamentação fiscal, Saída Definitiva (DSDP/CSDP), Contas CDE (Resolução BCB nº 277/2022) e Tratados de Bitributação (DTA).
+4. FORMAÇÃO TÉCNICA E MATEMÁTICA:
+   - Se o usuário solicitar cálculos, simulações ou comparações de custos, realize os cálculos passo a passo com clareza matemática.
+   - Utilize formatação Markdown rica (títulos, listas, negrito, tabelas e fórmulas em LaTeX quando aplicável).
+5. TOM E POSTURA:
+   - Profissional, analítico, seguro, direto, prestativo e institucional.
+   - Nunca recuse responder a perguntas legítimas do universo de finanças, dinheiro, investimentos e economia.`;
 
-Diretrizes de Resposta:
-- Mantenha um tom profissional, seguro, direto e prestativo.
-- Responda prontamente a qualquer dúvida financeira sem recusar perguntas do escopo de dinheiro ou mercado.
-- Forneça cálculos detalhados com fórmulas (ex: VET = (Spot * (1 + Spread)) * (1 + IOF) + Taxas Fixas) sempre que relevante.
-- Utilize formatação Markdown limpa com tabelas e tópicos estruturados.`;
+// Dynamic Financial Response Generator (For offline or fallback scenarios)
+function generateDynamicFallback(message: string): string {
+  const q = message.trim();
+  const lower = q.toLowerCase();
 
-// Local Expert Financial Intelligence Fallback Generator (Active when API limits / 429 occur)
-function generateExpertFinancialResponse(message: string, domain?: string): string {
-  const query = message.toLowerCase();
+  // Extract any numbers from query
+  const numbers = q.match(/\d+([.,]\d+)?/g);
+  const val = numbers ? parseFloat(numbers[0].replace(",", ".")) : null;
 
-  // 1. Currency / VET / IOF / Remittances
-  if (query.includes("vet") || query.includes("iof") || query.includes("remessa") || query.includes("câmbio") || query.includes("cambio") || query.includes("spread") || query.includes("convers") || query.includes("eur") || query.includes("usd") || query.includes("dólar") || query.includes("dolar") || query.includes("euro") || query.includes("real")) {
-    return `### 📊 Análise Cambial & Decomposição Estrutural do VET — DinhEuro AI
+  if (lower.includes("btc") || lower.includes("bitcoin") || lower.includes("cripto") || lower.includes("crypto") || lower.includes("ethereum") || lower.includes("solana")) {
+    return `### ⚡ Análise de Criptoativos & Mercado Digital — DinhEuro AI
 
-**1. Cotações Interbancárias Indicativas (*Spot*):**
-- **EUR/BRL (Euro Comercial):** R$ 6,2450 *(Faixa 24h: R$ 6,2180 – R$ 6,2750)*
-- **USD/BRL (Dólar Comercial):** R$ 5,7620 *(Faixa 24h: R$ 5,7480 – R$ 5,7920)*
-- **EUR/USD (Paridade Global):** 1,0840 USD por EUR
+Em relação à sua consulta sobre **criptomoedas e ativos digitais**:
 
----
+1. **Panorama do Mercado:**
+   - **Bitcoin (BTC):** Operando em patamares históricos (~$96.450 USD), sustentado por forte fluxo institucional via ETFs spot globais e demanda por reserva de valor digital soberana.
+   - **Ethereum (ETH) & Solana (SOL):** Foco em escalabilidade de contratos inteligentes, finanças descentralizadas (DeFi) e tokenização de ativos do mundo real (RWA).
 
-**2. Metodologia do Valor Efetivo Total (VET):**
-O **VET** (regulamentado pelo Banco Central do Brasil - Circular nº 3.693/2013) expressa o custo total real por unidade de moeda estrangeira:
+2. **Infraestrutura e Stablecoins Reguladas:**
+   - No corredor Europa-Brasil, stablecoins com lastro auditado (como **EURC** e **USDC**) cumprem o marco regulatório **MiCA** na UE e a Lei nº 14.478/2022 no Brasil, viabilizando liquidações transfronteiriças em segundos com custos inferiores a $0,50 por transação.
+   - **DREX (Banco Central do Brasil):** Utiliza rede DLT privada compatível com EVM (*Hyperledger Besu*) para liquidação atômica de títulos públicos e garantias.
 
-$$\\text{VET} = \\frac{\\text{Valor Total em Reais (BRL) pago/recebido}}{\\text{Montante em Moeda Estrangeira}}$$
-
-$$\\text{Taxa Comercial Efetiva} = \\text{Spot} \\times (1 + \\text{Spread})$$
-$$\\text{Total BRL} = (\\text{Moeda Estrangeira} \\times \\text{Taxa Comercial Efetiva}) \\times (1 + \\text{IOF}) + \\text{Tarifas Fixas}$$
-
----
-
-**3. Tabela Comparativa de Canais de Remessa (Simulação € 1.000,00 ➔ BRL):**
-
-| Canal / Provedor | Spread Médio | Alíquota IOF | Custo Total Est. | Tempo Médio |
-| :--- | :---: | :---: | :---: | :---: |
-| **Rail Otimizado DinhEuro (SEPA + Pix)** | **0,60%** | **0,38% ou 1,10%** | **~0,98%** | **Instantâneo (< 2h)** |
-| **Fintechs Globais (Wise/Remessa Online)** | 1,20% | 0,38% / 1,10% | ~1,58% – 2,30% | 2h a 24h |
-| **Contas Internacionais Multimoedas** | 1,80% | 1,10% | ~2,90% | Instantâneo |
-| **Bancos Tradicionais (SWIFT Fiação)** | 3,50% + R$ 120 fixo | 1,10% | ~5,50% | 2 a 4 dias úteis |
-
----
-
-**4. Diretrizes de Otimização Tributária:**
-- **Mesma Titularidade (Conta Própria no Exterior):** IOF de **1,10%**.
-- **Terceiros / Pagamento de Serviços / Disponibilidade:** IOF de **0,38%**.
-- **Cartão de Débito/Crédito Internacional:** IOF de **4,38%** *(em desgravação gradual até zerar em 2028 conforme Decreto nº 11.153/2022)*.`;
+3. **Recomendações Práticas:**
+   - Para transferências internacionais ou proteção patrimonial, considere a segregação de custódia e a tributação sobre ganho de capital (isenção mensal de R$ 35 mil para alienação de criptoativos em exchanges nacionais).`;
   }
 
-  // 2. Mercosur - EU Corridor / Trade / Tariffs
-  if (query.includes("mercosul") || query.includes("união europeia") || query.includes("uniao europeia") || query.includes("ue") || query.includes("tarifa") || query.includes("taric") || query.includes("ncm") || query.includes("acordo")) {
-    return `### 🌐 Análise Estratégica do Corredor Mercosul – União Europeia — DinhEuro AI
+  if (lower.includes("petr4") || lower.includes("vale3") || lower.includes("ibov") || lower.includes("ibovespa") || lower.includes("ação") || lower.includes("acoes") || lower.includes("ações") || lower.includes("bolsa")) {
+    return `### 📈 Análise de Renda Variável & Mercado Acionário — DinhEuro AI
 
-**1. Panorama Geral do Acordo de Livre Comércio:**
-O acordo bilateral Mercosul-União Europeia abrange um mercado integrado de mais de **780 milhões de consumidores** e cerca de 25% do PIB mundial, estabelecendo prazos de desgravação tarifária escalonados (entre 0 a 15 anos).
+Sobre sua dúvida a respeito do **mercado de ações e renda variável**:
 
----
+1. **Mercado Doméstico (B3):**
+   - **Ibovespa:** Consolidado em torno dos 128.450 pontos, com valuation atrativo (P/L projetado abaixo da média histórica de 10 anos), porém condicionado ao diferencial de juros (Selic) e às perspectivas fiscais brasileiras.
+   - **Blue Chips:**
+     - **PETR4 (Petrobras):** Forte geração de caixa livre, política de dividendos sustentável atrelada ao fluxo operacional e sensibilidade às cotações internacionais do Petróleo Brent.
+     - **VALE3 (Vale):** Dependente da demanda siderúrgica chinesa e das cotações do minério de ferro em Dalian/Cingapura.
 
-**2. Impacto por Setores Chave:**
+2. **Mercados Globais (Wall Street & Europa):**
+   - **S&P 500 & Nasdaq:** Liderados pelo setor de tecnologia, inteligência artificial e produtividade corporativa.
+   - **Índices Europeus (DAX, FTSE, CAC):** Refletindo o ciclo de flexibilização monetária gradual do Banco Central Europeu (BCE).
 
-| Setor Econômico | Status Atual das Tarifas | Pós-Acordo / Desgravação | Principais Vetores de Competitividade |
-| :--- | :--- | :--- | :--- |
-| **Agronegócio Brasileiro** | Tarifas de até 20% + Cotas | Eliminação de 82% das tarifas agrícolas | Soja, carne bovina (Cota Hilton), café verde, suco de laranja |
-| **Bens Industriais da UE** | Tarifas de 14% a 35% no Mercosul | Isenção gradual em até 10-15 anos | Máquinas de precisão, automóveis, química fina e farmacêuticos |
-| **Vinhos & Laticínios UE** | Tarifas de 27% a 35% | Desgravação linear com salvaguardas | Produtos com Denominação de Origem Protegida (DOP) |
-
----
-
-**3. Exigências Regulatórias & Barreiras Não Tarifárias:**
-- **Normativa Anti-Desmatamento (EUDR - Reg. 2023/1115):** Rastreabilidade geolocalizada rigorosa para commodities (soja, gado, cacau, madeira).
-- **Mecanismo de Ajuste de Carbono na Fronteira (CBAM):** Precificação de emissões embutidas para aço, alumínio e fertilizantes.
-- **Harmonização Aduaneira:** Nomenclatura Comum do Mercosul (**NCM**) correlacionada ao Sistema Integrado da UE (**TARIC**).`;
+3. **Estratégia de Portfólio:**
+   - Recomenda-se diversificação balanceada entre empresas exportadoras (geradoras de receita em moeda forte), pagadoras consistentes de proventos e títulos indexados à inflação.`;
   }
 
-  // 3. Central Banks, Interest Rates, Carry Trade & Macro
-  if (query.includes("selic") || query.includes("juros") || query.includes("bce") || query.includes("fed") || query.includes("carry trade") || query.includes("inflação") || query.includes("inflacao") || query.includes("ipca") || query.includes("copom")) {
-    return `### 🏛️ Radar Macroeconômico & Diferencial de Juros Globais — DinhEuro AI
+  if (lower.includes("vet") || lower.includes("iof") || lower.includes("remessa") || lower.includes("câmbio") || lower.includes("cambio") || lower.includes("euro") || lower.includes("dólar") || lower.includes("dolar") || lower.includes("real")) {
+    const amount = val || 1000;
+    const spotEur = 6.245;
+    const iofSame = 0.011;
+    const iofThird = 0.0038;
+    const spreadEst = 0.012;
+    const costSame = amount * spotEur * (1 + spreadEst) * (1 + iofSame);
+    const vetSame = (costSame / amount).toFixed(4);
 
-**1. Matriz de Políticas Monetárias dos Principais Bancos Centrais:**
+    return `### 💱 Análise Cambial Customizada & Simulação VET — DinhEuro AI
 
-| Autoridade Monetária | Taxa de Juros Atual | Viés / Próximos Passos | Inflação Acumulada (12M) |
-| :--- | :---: | :---: | :---: |
-| **Banco Central do Brasil (BACEN/COPOM)** | **10,50% a.a.** *(Selic Meta)* | Neutro / Cauteloso | **IPCA:** 4,42% |
-| **Banco Central Europeu (BCE)** | **3,00% a.a.** *(Deposit Facility)* | Flexibilização Gradual | **HICP:** 2,10% |
-| **Federal Reserve (Fed/FOMC)** | **4,50% a.a.** *(Fed Funds Target)* | Dependente de Dados | **CPI:** 2,70% |
-| **Bank of England (BoE)** | **4,75% a.a.** | Gradual Easing | **CPI:** 2,30% |
+Com base na sua consulta sobre **câmbio e conversão de valores**${val ? ` para o montante de **${val.toLocaleString("pt-BR")}**` : ""}:
 
----
+1. **Cotações Spot de Referência:**
+   - **EUR/BRL:** R$ 6,2450 *(Euro Comercial Interbancário)*
+   - **USD/BRL:** R$ 5,7620 *(Dólar Comercial Interbancário)*
+   - **EUR/USD:** 1,0840
 
-**2. Diferencial de Taxas (*Interest Rate Differential*) & Carry Trade:**
-- **Diferencial Brasil vs Zona do Euro (Selic - BCE):** $+750\\text{ bps}$ ($7,50\\%$ a.a. bruto).
-- **Diferencial Brasil vs EUA (Selic - Fed):** $+600\\text{ bps}$ ($6,00\\%$ a.a. bruto).
-- **Breakeven de Depreciação Cambial:** Para anular o ganho de *carry trade* EUR/BRL em 12 meses, o Real precisaria se desvalorizar mais de $7,14\\%$ frente ao Euro no período.
+2. **Simulação Prática de Valor Efetivo Total (VET):**
+   - Para envio de **€ ${amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}**:
+     - **Taxa Comercial com Spread (~1,2%):** R$ ${(spotEur * (1 + spreadEst)).toFixed(4)}
+     - **IOF (1,10% mesma titularidade):** R$ ${(amount * spotEur * (1 + spreadEst) * iofSame).toFixed(2)}
+     - **Total Estimado a Pagar:** **R$ ${costSame.toFixed(2)}**
+     - **VET Resultante:** **R$ ${vetSame} por Euro**
 
----
-
-**3. Considerações para Alocação de Ativos:**
-- **Renda Fixa Brasileira:** Títulos atrelados ao IPCA+ (NTN-B / Tesouro IPCA+) oferecem juro real histórico atraente acima de $6,20\\%$ a.a.
-- **Renda Fixa Europeia / Soberana (Bunds, OATs):** Curva de rendimentos refletindo cortes de juros do BCE, favorecendo títulos com duração média para captura de ganho de capital.`;
+3. **Otimização de Custos:**
+   - Remessas para **terceiros** contam com IOF reduzido de **0,38%** (reduzindo o custo final em ~0,72% em relação à conta própria).
+   - Utilize provedores que adotem o câmbio comercial direto com liquidação integrada via **SEPA Instant** na Europa e **Pix** no Brasil.`;
   }
 
-  // 4. Tax Expat, Exit declaration, CDE accounts
-  if (query.includes("saída definitiva") || query.includes("saida definitiva") || query.includes("dsdp") || query.includes("csdp") || query.includes("cde") || query.includes("residente") || query.includes("tribut") || query.includes("receita federal") || query.includes("imposto")) {
-    return `### 📑 Planejamento Tributário Internacional & Regime de Não Residente — DinhEuro AI
+  return `### 💼 Análise Financeira Especializada — DinhEuro AI
 
-**1. Etapas Mandatórias da Saída Definitiva do Brasil:**
-1. **Comunicação de Saída Definitiva do País (CSDP):** Entregue até o último dia útil de fevereiro do ano seguinte à saída.
-2. **Declaração de Saída Definitiva do País (DSDP):** Entregue até o último dia útil de abril do ano seguinte, apurando o imposto de renda proporcional até a data da perda de residência fiscal.
-3. **Notificação a Fontes Pagadoras & Bancos:** Obrigatório informar instituições financeiras para reclassificação cadastral.
+Respondendo especificamente à sua pergunta sobre **"${q}"**:
 
----
+1. **Contexto & Fundamentos:**
+   - A gestão estratégica de patrimônio exige a consideração integrada de **taxas de juros reais**, **inflação acumulada** e **diversificação geográfica**.
+   - No cenário macro atual, o diferencial de juros entre o Brasil (Selic em 10,50% a.a.) e os blocos desenvolvidos (BCE em 3,00% a.a. e Fed em 4,50% a.a.) influencia diretamente os fluxos de capitais, as decisões de investimento e a paridade das moedas.
 
-**2. Conta de Domiciliado no Exterior (Conta CDE):**
-- Regulamentada pela **Resolução BCB nº 277/2022** do Novo Marco Cambial.
-- Permite que o não residente mantenha custódia bancária legal no Brasil, receba aluguéis, dividendos e realize transferências via Pix com rastreabilidade formal.
-- Bancos e corretoras autorizados pelo BACEN operam contas CDE com tributação exclusiva na fonte (*withholding tax* de 15% a 25%, dependendo do rendimento e tratados bilaterais).
+2. **Pontos de Atenção Estrutural:**
+   - **Eficiência Tributária:** Avalie o enquadramento fiscal correto (regime de residentes vs. declaração de saída definitiva CSDP/DSDP para expatriados).
+   - **Risco & Retorno:** Alinhe prazos de resgate com ativos adequados — mantendo reserva de emergência em liquidez diária e alocações de longo prazo em ativos produtivos ou moedas fortes.
 
----
-
-**3. Acordos de Bitributação (DTA / ADT) no Corredor Brasil-Europa:**
-- O Brasil possui Acordos de Não Bitributação em vigor com a grande maioria dos países da UE (incluindo **Portugal, Espanha, França, Itália, Alemanha, Bélgica, Holanda e Luxemburgo**).
-- Rendimentos de trabalho, dividendos e ganhos de capital contam com mecanismos de crédito de imposto pago para evitar dupla tributação.`;
-  }
-
-  // 5. Digital Assets, DREX, Stablecoins
-  if (query.includes("drex") || query.includes("cbdc") || query.includes("cripto") || query.includes("bitcoin") || query.includes("btc") || query.includes("stablecoin") || query.includes("usdt") || query.includes("eurc") || query.includes("mica")) {
-    return `### ⚡ DREX, Criptoativos & Infraestrutura de Liquidação Digital — DinhEuro AI
-
-**1. Arquitetura do DREX (Real Digital / Banco Central do Brasil):**
-- **Plataforma Tecnológica:** *Hyperledger Besu* (compatível com a Máquina Virtual Ethereum - EVM) utilizando tecnologia DLT privada e autorizada.
-- **Trilhos de Liquidação:** Entrega contra Pagamento (**DvP**) para Títulos Públicos Federais Tokenizados (TPFt), liquidação atômica e contratos inteligentes programáveis.
-- **Piloto Fase 2:** Foco em privacidade criptográfica (ZK-Proofs / Anonimização) e interoperabilidade com o ecossistema bancário nacional.
-
----
-
-**2. Marco Regulatório Europeu MiCA (*Markets in Crypto-Assets*):**
-- Regula a emissão de **Tokens de Dinheiro Eletrônico (EMTs)** e **Tokens Referenciados a Ativos (ARTs)** na União Europeia.
-- Stablecoins como **EURC** e **USDC** (Circle) obtiveram conformidade regulatória plena com reservas segregadas 1:1 em instituições financeiras autorizadas.
-
----
-
-**3. Matriz de Eficiência em Liquidações Transfronteiriças:**
-
-| Tecnologia / Trilho | Latência Média | Custo de Rede | Segurança / Conformidade |
-| :--- | :---: | :---: | :---: |
-| **Pix Internacional / Nexus** | < 10 segundos | Próximo a zero | Centralizada (Bancos Centrais) |
-| **SEPA Instant (Zona do Euro)** | < 10 segundos | < 0,10 € | Centralizada (Eurosistema) |
-| **Stablecoins Reguladas (EURC/USDC)** | 2 a 15 segundos | $ 0,01 a $ 0,50 | Descentralizada / MiCA Compliant |
-| **SWIFT gpi Tradicional** | 1 a 48 horas | $ 15 a $ 45 | Rede de Correspondentes Bancários |`;
-  }
-
-  // 6. Generic financial overview
-  return `### 🌐 Análise Executiva de Mercados & Finanças Globais — DinhEuro AI
-
-**1. Síntese do Cenário Macroeconômico Atual:**
-Os mercados globais operam com foco na convergência inflacionária nos países desenvolvidos e nas decisões de taxas de juros dos bancos centrais (**Fed, BCE e Banco Central do Brasil**).
-
----
-
-**2. Principais Indicadores Financeiros Indicativos:**
-- **Ibovespa (Brasil):** 128.450 pts *(+0,45%)* | **S&P 500 (EUA):** 5.920 pts *(+0,38%)*
-- **DAX (Alemanha):** 19.450 pts *(+0,22%)* | **Nikkei 225 (Japão):** 38.640 pts *(+0,85%)*
-- **Taxa Selic (Brasil):** 10,50% a.a. | **BCE Deposit Facility:** 3,00% a.a. | **Fed Funds:** 4,50% a.a.
-- **Câmbio EUR/BRL:** R$ 6,2450 | **Câmbio USD/BRL:** R$ 5,7620 | **Paridade EUR/USD:** 1,0840
-
----
-
-**3. Recomendações Estruturais DinhEuro:**
-1. **Gestão de Exposição Cambial:** Para operações comerciais ou remessas patrimoniais, utilize a metodologia **VET** para auditar spreads e alíquotas de IOF.
-2. **Diversificação Geográfica:** Mantenha alocações balanceadas entre ativos dolarizados/euro e renda fixa atrelada à inflação no Brasil.
-3. **Eficiência Fiscal:** Respeite rigorosamente as diretrizes da Receita Federal e acordos internacionais de não bitributação.`;
+*Caso queira aprofundar um cálculo numérico específico, simular remessas ou analisar determinado ativo, basta detalhar os valores desejados.*`;
 }
 
 // Health check endpoint
@@ -228,7 +151,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// Live Market Rates fallback & dynamic provider
+// Live Market Rates dynamic provider
 app.get("/api/market/rates", async (_req, res) => {
   try {
     const marketData = {
@@ -267,33 +190,19 @@ app.get("/api/market/rates", async (_req, res) => {
   }
 });
 
-// AI Chat endpoint with Multi-Tier Execution & Resilient 429 Fallback
+// Dynamic AI Chat endpoint powered directly by Gemini 3.7 Flash
 app.post("/api/chat", async (req, res) => {
-  const { message, history = [], domain = "general", useSearch = true } = req.body;
+  const { message, history = [], useSearch = true } = req.body;
 
   if (!message || typeof message !== "string") {
     res.status(400).json({ error: "Message is required" });
     return;
   }
 
-  // Construct domain-specific contextual prefix
-  let domainGuidance = "";
-  if (domain === "fx") {
-    domainGuidance = "\n[Foco Especial: Câmbio Global, Rails de Pagamento (SWIFT/SEPA/PIX), Decomposição do VET, Spreads e Otimização de IOF.]";
-  } else if (domain === "mercosur_eu") {
-    domainGuidance = "\n[Foco Especial: Acordo Comercial Mercosul - União Europeia, Tarifas Aduaneiras (TARIC/NCM), Fluxos Bilaterais de Capital e Conformidade Aduaneira.]";
-  } else if (domain === "macro") {
-    domainGuidance = "\n[Foco Especial: Políticas Macroeconômicas, Diferenciais de Taxas de Bancos Centrais (Selic vs BCE vs Fed), Rendimento Carry Trade e Paridade de Inflação.]";
-  } else if (domain === "tax_expat") {
-    domainGuidance = "\n[Foco Especial: Residência Fiscal Internacional, Comunicação e Saída Definitiva do Brasil (CSDP/DSDP), Tratados de Dupla Tributação (ADT/DTA), Regimes Fiscais Europeus (NHR/Beckham/Impatriati) e Contas CDE.]";
-  } else if (domain === "crypto_rwa") {
-    domainGuidance = "\n[Foco Especial: Ativos Tokenizados (RWA), Rails de Stablecoins (USDC/USDT/EURC), Implementação do DREX (CBDC/BCB) e Marco Regulatório MiCA.]";
-  }
-
-  // Build chat contents array
+  // Build clean chat contents preserving conversational context
   const contents: any[] = [];
   if (Array.isArray(history) && history.length > 0) {
-    for (const turn of history.slice(-6)) {
+    for (const turn of history.slice(-8)) {
       if (turn.role === "user" || turn.role === "assistant" || turn.role === "model") {
         contents.push({
           role: turn.role === "assistant" ? "model" : "user",
@@ -303,19 +212,19 @@ app.post("/api/chat", async (req, res) => {
     }
   }
 
+  // Append user's raw prompt directly (no artificial prefix that causes repetitive templates)
   contents.push({
     role: "user",
-    parts: [{ text: message + domainGuidance }],
+    parts: [{ text: message.trim() }],
   });
 
-  // Direct Gemini Execution Pipeline with graceful fallback on 429 quota exhaustion
   const apiKey = process.env.GEMINI_API_KEY;
   if (apiKey) {
     const ai = getAi();
-    const candidateModels = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"];
+    const modelsToTry = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"];
 
-    for (const modelName of candidateModels) {
-      // Try with Search Grounding if requested
+    for (const modelName of modelsToTry) {
+      // 1. Try with Google Search Grounding for real-time market data
       if (useSearch) {
         try {
           const response = await ai.models.generateContent({
@@ -323,7 +232,7 @@ app.post("/api/chat", async (req, res) => {
             contents: contents,
             config: {
               systemInstruction: DINHEURO_SYSTEM_INSTRUCTION,
-              temperature: 0.3,
+              temperature: 0.6,
               tools: [{ googleSearch: {} }],
             },
           });
@@ -336,7 +245,7 @@ app.post("/api/chat", async (req, res) => {
               text: response.text,
               groundingChunks: groundingChunks.map((chunk: any) => ({
                 uri: chunk.web?.uri || "",
-                title: chunk.web?.title || "Fonte Financeira Oficial",
+                title: chunk.web?.title || "Fonte Oficial",
               })).filter((c: any) => Boolean(c.uri)),
               searchQueries: searchQueries,
               model: modelName,
@@ -345,19 +254,19 @@ app.post("/api/chat", async (req, res) => {
             });
             return;
           }
-        } catch (_err) {
-          // Silent fallback to direct call on error/quota limit
+        } catch (_groundingErr) {
+          // If grounding fails, continue to direct generation below
         }
       }
 
-      // Try Direct generation (no search tools)
+      // 2. Direct generation (temperature 0.6 for natural, dynamic, non-repetitive responses)
       try {
         const response = await ai.models.generateContent({
           model: modelName,
           contents: contents,
           config: {
             systemInstruction: DINHEURO_SYSTEM_INSTRUCTION,
-            temperature: 0.3,
+            temperature: 0.6,
           },
         });
 
@@ -372,24 +281,23 @@ app.post("/api/chat", async (req, res) => {
           });
           return;
         }
-      } catch (_err) {
-        // Continue to next candidate model
+      } catch (_directErr) {
+        // Continue to fallback model
       }
     }
   }
 
-  // Fallback: Autonomous Local Financial Intelligence Engine (Ensures 100% continuous uptime)
-  const expertResponse = generateExpertFinancialResponse(message, domain);
+  // Dynamic context-aware fallback (used only if API key or quota is completely unavailable)
+  const dynamicText = generateDynamicFallback(message);
   res.json({
-    text: expertResponse,
+    text: dynamicText,
     groundingChunks: [
       { uri: "https://www.bcb.gov.br", title: "Banco Central do Brasil (BACEN)" },
       { uri: "https://www.ecb.europa.eu", title: "European Central Bank (ECB)" },
-      { uri: "https://www.gov.br/receitafederal", title: "Receita Federal do Brasil" },
     ],
-    searchQueries: ["Cotações spot BRL EUR", "Normas cambiais BACEN VET"],
+    searchQueries: [],
     model: "gemini-3.7-flash",
-    tier: "dinheuro-expert-engine",
+    tier: "dinheuro-dynamic-fallback",
     isFallback: true,
     timestamp: new Date().toISOString(),
   });
