@@ -9,10 +9,13 @@ import { AiDrawerModal } from "./components/AiDrawerModal";
 import { WatchlistModal } from "./components/WatchlistModal";
 import { ForexConverterModal } from "./components/ForexConverterModal";
 import { CurrencyConverter } from "./components/CurrencyConverter";
+import { PriceAlertBanner } from "./components/PriceAlertBanner";
+import { PriceAlertsModal } from "./components/PriceAlertsModal";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { MarketAsset, MarketRegion } from "./types";
 import { ALL_ASSETS } from "./data/marketData";
+import { usePriceAlerts } from "./hooks/usePriceAlerts";
 
 export default function App() {
   // Navigation & View State
@@ -25,6 +28,25 @@ export default function App() {
   const [aiPromptToInject, setAiPromptToInject] = useState<string | undefined>(undefined);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState<boolean>(false);
   const [isForexModalOpen, setIsForexModalOpen] = useState<boolean>(false);
+
+  // Price Monitoring & Alerts State
+  const [isPriceAlertsModalOpen, setIsPriceAlertsModalOpen] = useState<boolean>(false);
+  const [priceAlertPreselectedSymbol, setPriceAlertPreselectedSymbol] = useState<string | undefined>(undefined);
+
+  const {
+    alerts,
+    activeTriggeredAlerts,
+    totalTriggeredCount,
+    activeAlertsCount,
+    addAlert,
+    removeAlert,
+    toggleAlertActive,
+    resetAlert,
+    dismissNotification,
+    dismissAllNotifications,
+    triggerAlertManually,
+    simulatePriceChange,
+  } = usePriceAlerts();
 
   // Watchlist Persistence in localStorage
   const [watchlistSymbols, setWatchlistSymbols] = useState<string[]>(() => {
@@ -59,6 +81,11 @@ export default function App() {
     setIsAiModalOpen(true);
   };
 
+  const handleOpenPriceAlertModal = (symbol?: string) => {
+    setPriceAlertPreselectedSymbol(symbol);
+    setIsPriceAlertsModalOpen(true);
+  };
+
   const handleSelectAsset = (asset: MarketAsset) => {
     setSelectedAsset(asset);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -68,6 +95,11 @@ export default function App() {
     setSelectedAsset(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Find active alert for the currently selected asset (if any)
+  const activeAlertForSelectedAsset = selectedAsset
+    ? alerts.find((a) => a.symbol === selectedAsset.symbol && a.active && !a.triggered)
+    : undefined;
 
   return (
     <div className="min-h-screen bg-[#0e1117] text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
@@ -86,7 +118,10 @@ export default function App() {
         onOpenWatchlist={() => setIsWatchlistOpen(true)}
         onOpenAiChat={handleOpenAiWithPrompt}
         onOpenForexConverter={() => setIsForexModalOpen(true)}
+        onOpenPriceAlerts={() => handleOpenPriceAlertModal()}
         watchlistCount={watchlistSymbols.length}
+        priceAlertsCount={alerts.length}
+        hasTriggeredAlerts={activeTriggeredAlerts.length > 0}
       />
 
       {/* Lateral Slide-Over Navigation Drawer */}
@@ -100,7 +135,20 @@ export default function App() {
         onOpenWatchlist={() => setIsWatchlistOpen(true)}
         onOpenAiChat={handleOpenAiWithPrompt}
         onOpenForexConverter={() => setIsForexModalOpen(true)}
+        onOpenPriceAlerts={() => handleOpenPriceAlertModal()}
+        priceAlertsCount={alerts.length}
+        hasTriggeredAlerts={activeTriggeredAlerts.length > 0}
         onGoToOverview={handleBackToOverview}
+      />
+
+      {/* PRICE TARGET TRIGGER NOTIFICATION BANNER (Displays when prices reach defined targets) */}
+      <PriceAlertBanner
+        triggeredAlerts={activeTriggeredAlerts}
+        onDismiss={dismissNotification}
+        onDismissAll={dismissAllNotifications}
+        onSelectAsset={handleSelectAsset}
+        onOpenAlertsModal={() => handleOpenPriceAlertModal()}
+        onAskAi={handleOpenAiWithPrompt}
       />
 
       {/* Main Content Area: Overview vs Detailed View */}
@@ -116,6 +164,8 @@ export default function App() {
             onToggleWatchlist={handleToggleWatchlist}
             isWatchlisted={watchlistSymbols.includes(selectedAsset.symbol)}
             onAskAi={handleOpenAiWithPrompt}
+            onOpenPriceAlertForAsset={(symbol) => handleOpenPriceAlertModal(symbol)}
+            activeAlertForAsset={activeAlertForSelectedAsset}
           />
         ) : (
           /* =========================================================================
@@ -130,10 +180,16 @@ export default function App() {
                 <span>•</span>
                 <span className="font-mono">Filtro Ativo: {activeRegion}</span>
               </div>
-              <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
-                <span className="hidden md:inline">Instalável como PWA • Offline Ready</span>
+              <div className="flex items-center gap-3 font-mono text-[11px] text-slate-400">
+                <button
+                  onClick={() => handleOpenPriceAlertModal()}
+                  className="hover:text-amber-300 text-slate-300 flex items-center gap-1 font-semibold transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span>{alerts.length} Metas de Preço no LocalStorage</span>
+                </button>
                 <span className="hidden md:inline">•</span>
-                <span>DinhEuro AI Sync: BACEN • BCE • Fed • NYSE • B3</span>
+                <span className="hidden md:inline">DinhEuro AI Sync: BACEN • BCE • Fed • NYSE • B3</span>
               </div>
             </div>
 
@@ -179,7 +235,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Global Modals: AI Chat Copilot, Watchlist Manager, and Forex Converter */}
+      {/* Global Modals: AI Chat Copilot, Watchlist Manager, Forex Converter, and Price Alerts Manager */}
       <AiDrawerModal
         isOpen={isAiModalOpen}
         onClose={() => {
@@ -207,6 +263,25 @@ export default function App() {
         defaultTo="BRL"
       />
 
+      {/* PRICE ALERTS & TARGETS MANAGEMENT MODAL */}
+      <PriceAlertsModal
+        isOpen={isPriceAlertsModalOpen}
+        onClose={() => {
+          setIsPriceAlertsModalOpen(false);
+          setPriceAlertPreselectedSymbol(undefined);
+        }}
+        alerts={alerts}
+        onAddAlert={addAlert}
+        onRemoveAlert={removeAlert}
+        onToggleActive={toggleAlertActive}
+        onResetAlert={resetAlert}
+        onTriggerManually={triggerAlertManually}
+        onSimulatePrice={simulatePriceChange}
+        onSelectAsset={handleSelectAsset}
+        onAskAi={handleOpenAiWithPrompt}
+        preselectedSymbol={priceAlertPreselectedSymbol}
+      />
+
       {/* Offline Toast / Indicator */}
       <OfflineIndicator />
 
@@ -223,6 +298,13 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-[11px]">
+            <button
+              onClick={() => handleOpenPriceAlertModal()}
+              className="hover:text-amber-400 transition-colors font-semibold text-slate-300"
+            >
+              Monitor de Metas de Preço
+            </button>
+            <span>•</span>
             <button
               onClick={() => setIsForexModalOpen(true)}
               className="hover:text-emerald-400 transition-colors font-semibold text-slate-300"
@@ -250,17 +332,6 @@ export default function App() {
               className="hover:text-blue-400 transition-colors"
             >
               Regulação Fiscal & CDE
-            </button>
-            <span>•</span>
-            <button
-              onClick={() =>
-                handleOpenAiWithPrompt(
-                  "Explique a arquitetura e os objetivos do DREX (Real Digital) do Banco Central do Brasil."
-                )
-              }
-              className="hover:text-blue-400 transition-colors"
-            >
-              DREX & Inovação BCB
             </button>
           </div>
         </div>

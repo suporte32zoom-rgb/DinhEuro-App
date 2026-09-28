@@ -21,9 +21,10 @@ import {
   Calendar,
   DollarSign
 } from "lucide-react";
-import { MarketAsset, TimeRange, ChartType, ChartDataPoint } from "../types";
+import { MarketAsset, TimeRange, ChartType, ChartDataPoint, PriceAlert } from "../types";
 import { ALL_ASSETS, MARKET_NEWS } from "../data/marketData";
 import { CurrencyConverter } from "./CurrencyConverter";
+import { Bell, BellRing } from "lucide-react";
 
 interface AssetDetailViewProps {
   asset: MarketAsset;
@@ -32,6 +33,8 @@ interface AssetDetailViewProps {
   onToggleWatchlist: (symbol: string) => void;
   isWatchlisted: boolean;
   onAskAi: (prompt: string) => void;
+  onOpenPriceAlertForAsset?: (symbol: string) => void;
+  activeAlertForAsset?: PriceAlert;
 }
 
 const TIME_RANGES: TimeRange[] = ["1D", "5D", "1M", "6M", "YTD", "1A", "5A", "MÁX"];
@@ -43,6 +46,8 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
   onToggleWatchlist,
   isWatchlisted,
   onAskAi,
+  onOpenPriceAlertForAsset,
+  activeAlertForAsset,
 }) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1D");
   const [chartType, setChartType] = useState<ChartType>("area");
@@ -182,6 +187,34 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
         </button>
 
         <div className="flex items-center gap-2">
+          {/* Price Alert / Target Button */}
+          {onOpenPriceAlertForAsset && (
+            <button
+              onClick={() => onOpenPriceAlertForAsset(asset.symbol)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+                activeAlertForAsset
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500 shadow-amber-500/20"
+                  : "bg-[#161b22] hover:bg-[#21262d] text-slate-200 border border-[#30363d]"
+              }`}
+              title="Definir meta de preço no LocalStorage"
+            >
+              {activeAlertForAsset ? (
+                <>
+                  <BellRing className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <span>
+                    Meta: {asset.currency === "BRL" ? "R$ " : asset.currency === "EUR" ? "€ " : "$ "}
+                    {activeAlertForAsset.targetPrice.toFixed(asset.price < 10 ? 4 : 2)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Bell className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Definir Meta</span>
+                </>
+              )}
+            </button>
+          )}
+
           {/* Add to Watchlist Button */}
           <button
             onClick={() => onToggleWatchlist(asset.symbol)}

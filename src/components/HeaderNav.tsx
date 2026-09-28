@@ -7,7 +7,9 @@ import {
   X,
   ArrowUpRight,
   ArrowDownRight,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Bell,
+  BellRing
 } from "lucide-react";
 import { MarketAsset, MarketRegion } from "../types";
 import { ALL_ASSETS } from "../data/marketData";
@@ -21,7 +23,10 @@ interface HeaderNavProps {
   onOpenWatchlist: () => void;
   onOpenAiChat: (prompt?: string) => void;
   onOpenForexConverter?: () => void;
+  onOpenPriceAlerts?: () => void;
   watchlistCount: number;
+  priceAlertsCount?: number;
+  hasTriggeredAlerts?: boolean;
 }
 
 export const CATEGORY_PILLS: MarketRegion[] = [
@@ -42,7 +47,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenWatchlist,
   onOpenAiChat,
   onOpenForexConverter,
+  onOpenPriceAlerts,
   watchlistCount,
+  priceAlertsCount = 0,
+  hasTriggeredAlerts = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -266,6 +274,37 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
             {/* PWA Install Button in Header */}
             <PWAInstallButton variant="header" />
+
+            {/* Price Alerts Bell Button */}
+            {onOpenPriceAlerts && (
+              <button
+                onClick={onOpenPriceAlerts}
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all shadow-sm ${
+                  hasTriggeredAlerts
+                    ? "bg-amber-500/20 text-amber-300 border-amber-500 shadow-amber-500/30 animate-pulse"
+                    : "bg-[#161b22] hover:bg-[#21262d] text-slate-200 border-[#30363d]"
+                }`}
+                title="Sistema de Metas & Alertas de Preço"
+              >
+                {hasTriggeredAlerts ? (
+                  <BellRing className="w-3.5 h-3.5 text-amber-400" />
+                ) : (
+                  <Bell className="w-3.5 h-3.5 text-slate-300" />
+                )}
+                <span className="hidden md:inline">Alertas</span>
+                {priceAlertsCount > 0 && (
+                  <span
+                    className={`w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                      hasTriggeredAlerts
+                        ? "bg-amber-500 text-slate-950 font-black"
+                        : "bg-blue-600 text-white"
+                    }`}
+                  >
+                    {priceAlertsCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Watchlist Quick Button */}
             <button

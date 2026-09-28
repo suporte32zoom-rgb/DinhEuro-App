@@ -9,7 +9,9 @@ import {
   ShieldCheck, 
   DollarSign, 
   ChevronRight,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Bell,
+  BellRing
 } from "lucide-react";
 import { MarketRegion } from "../types";
 import { PWAInstallButton } from "./PWAInstallButton";
@@ -21,6 +23,9 @@ interface DrawerNavProps {
   onOpenWatchlist: () => void;
   onOpenAiChat: (prompt?: string) => void;
   onOpenForexConverter?: () => void;
+  onOpenPriceAlerts?: () => void;
+  priceAlertsCount?: number;
+  hasTriggeredAlerts?: boolean;
   onGoToOverview: () => void;
   onOpenToolTab?: (tab: string) => void;
 }
@@ -32,6 +37,9 @@ export const DrawerNav: React.FC<DrawerNavProps> = ({
   onOpenWatchlist,
   onOpenAiChat,
   onOpenForexConverter,
+  onOpenPriceAlerts,
+  priceAlertsCount = 0,
+  hasTriggeredAlerts = false,
   onGoToOverview,
 }) => {
   if (!isOpen) return null;
@@ -107,6 +115,38 @@ export const DrawerNav: React.FC<DrawerNavProps> = ({
                 <span className="text-[9px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded font-mono">
                   LIVE
                 </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  if (onOpenPriceAlerts) onOpenPriceAlerts();
+                  onClose();
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-colors text-left ${
+                  hasTriggeredAlerts
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/50"
+                    : "text-slate-200 hover:text-white hover:bg-[#21262d]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {hasTriggeredAlerts ? (
+                    <BellRing className="w-4 h-4 text-amber-400 animate-pulse" />
+                  ) : (
+                    <Bell className="w-4 h-4 text-amber-400" />
+                  )}
+                  <span>Metas & Alertas de Preço</span>
+                </div>
+                {priceAlertsCount > 0 && (
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${
+                      hasTriggeredAlerts
+                        ? "bg-amber-500 text-slate-950 font-black"
+                        : "bg-blue-600 text-white"
+                    }`}
+                  >
+                    {priceAlertsCount}
+                  </span>
+                )}
               </button>
 
               <button

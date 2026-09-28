@@ -176,3 +176,19 @@ export interface TradeTariffScenario {
   keyOpportunity?: string;
 }
 
+export interface PriceAlert {
+  id: string;
+  symbol: string;
+  name: string;
+  currency: string;
+  targetPrice: number;
+  condition: "above" | "below"; // "above" (>=) or "below" (<=)
+  initialPrice: number;
+  active: boolean;
+  createdAt: string;
+  triggered: boolean;
+  triggeredAt?: string;
+  triggeredPrice?: number;
+  notes?: string;
+}
+
