@@ -224,9 +224,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                           <div className="text-right">
                             <div className="font-mono font-bold text-white text-sm">
                               {asset.currency === "BRL" ? "R$ " : asset.currency === "EUR" ? "€ " : "$ "}
-                              {asset.price.toLocaleString(undefined, {
-                                minimumFractionDigits: asset.price < 10 ? 4 : 2,
-                                maximumFractionDigits: asset.price < 10 ? 4 : 2,
+                              {asset.price.toLocaleString("pt-BR", {
+                                minimumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
+                                maximumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
                               })}
                             </div>
                             <div

@@ -24,7 +24,8 @@ import {
 import { MarketAsset, TimeRange, ChartType, ChartDataPoint, PriceAlert } from "../types";
 import { ALL_ASSETS, MARKET_NEWS } from "../data/marketData";
 import { CurrencyConverter } from "./CurrencyConverter";
-import { Bell, BellRing } from "lucide-react";
+import { Bell, BellRing, Radio } from "lucide-react";
+import { NormalizedQuote, formatBrl, formatNumberPtBr } from "../services/awesomeApi";
 
 interface AssetDetailViewProps {
   asset: MarketAsset;
@@ -35,6 +36,8 @@ interface AssetDetailViewProps {
   onAskAi: (prompt: string) => void;
   onOpenPriceAlertForAsset?: (symbol: string) => void;
   activeAlertForAsset?: PriceAlert;
+  liveQuote?: NormalizedQuote;
+  lastCreateDate?: string;
 }
 
 const TIME_RANGES: TimeRange[] = ["1D", "5D", "1M", "6M", "YTD", "1A", "5A", "MÁX"];
@@ -48,6 +51,8 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
   onAskAi,
   onOpenPriceAlertForAsset,
   activeAlertForAsset,
+  liveQuote,
+  lastCreateDate,
 }) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1D");
   const [chartType, setChartType] = useState<ChartType>("area");
@@ -263,17 +268,32 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
                 {asset.symbol}
               </span>
             </div>
-            <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-400">
+            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-400">
               <span className="font-mono bg-[#0e1117] px-2 py-0.5 rounded border border-[#30363d] font-semibold text-slate-300">
                 {asset.exchange}
               </span>
               <span>•</span>
               <span>{asset.region}</span>
               <span>•</span>
-              <span className="text-emerald-400 flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#00c853] animate-pulse" />
-                Mercado Aberto / Dados em tempo real
-              </span>
+              {liveQuote ? (
+                <span className="text-emerald-400 flex items-center gap-1 font-mono font-semibold">
+                  <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
+                  AwesomeAPI Live • Bid: R$ {formatNumberPtBr(liveQuote.bid, 4)} | Ask: R$ {formatNumberPtBr(liveQuote.ask, 4)}
+                </span>
+              ) : (
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#00c853] animate-pulse" />
+                  Mercado Aberto / Dados em tempo real
+                </span>
+              )}
+              {lastCreateDate && (
+                <>
+                  <span>•</span>
+                  <span className="text-[11px] font-mono text-amber-300">
+                    Última Atualização: {lastCreateDate}
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -281,9 +301,9 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
           <div className="md:text-right">
             <div className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
               {asset.currency === "BRL" ? "R$ " : asset.currency === "EUR" ? "€ " : "$ "}
-              {currentDisplayVal.toLocaleString(undefined, {
-                minimumFractionDigits: asset.price < 10 ? 4 : 2,
-                maximumFractionDigits: asset.price < 10 ? 4 : 2,
+              {currentDisplayVal.toLocaleString("pt-BR", {
+                minimumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
+                maximumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
               })}
             </div>
 
@@ -299,9 +319,9 @@ export const AssetDetailView: React.FC<AssetDetailViewProps> = ({
               )}
               <span>
                 {isPositivePeriod ? "+" : ""}
-                {changeFromStart.toLocaleString(undefined, {
-                  minimumFractionDigits: asset.price < 10 ? 4 : 2,
-                  maximumFractionDigits: asset.price < 10 ? 4 : 2,
+                {changeFromStart.toLocaleString("pt-BR", {
+                  minimumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
+                  maximumFractionDigits: asset.region === "Criptomoedas" ? 2 : asset.price < 10 ? 4 : 2,
                 })}
               </span>
               <span>({isPositivePeriod ? "+" : ""}{changePercentFromStart.toFixed(2)}%)</span>

@@ -11,11 +11,13 @@ import { ForexConverterModal } from "./components/ForexConverterModal";
 import { CurrencyConverter } from "./components/CurrencyConverter";
 import { PriceAlertBanner } from "./components/PriceAlertBanner";
 import { PriceAlertsModal } from "./components/PriceAlertsModal";
+import { AwesomeLiveTicker } from "./components/AwesomeLiveTicker";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { MarketAsset, MarketRegion } from "./types";
 import { ALL_ASSETS } from "./data/marketData";
 import { usePriceAlerts } from "./hooks/usePriceAlerts";
+import { useAwesomeRates } from "./hooks/useAwesomeRates";
 
 export default function App() {
   // Navigation & View State
@@ -47,6 +49,17 @@ export default function App() {
     triggerAlertManually,
     simulatePriceChange,
   } = usePriceAlerts();
+
+  // AwesomeAPI Real-Time Rates Hook with 30s auto-polling
+  const {
+    quotes: awesomeQuotes,
+    lastCreateDate: awesomeCreateDate,
+    isRefreshing: isAwesomeRefreshing,
+    secondsUntilNextPoll,
+    refresh: refreshAwesomeRates,
+  } = useAwesomeRates((symbol, price) => {
+    simulatePriceChange(symbol, price);
+  });
 
   // Watchlist Persistence in localStorage
   const [watchlistSymbols, setWatchlistSymbols] = useState<string[]>(() => {
@@ -91,6 +104,13 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSelectAssetBySymbol = (symbol: string) => {
+    const asset = ALL_ASSETS.find((a) => a.symbol === symbol);
+    if (asset) {
+      handleSelectAsset(asset);
+    }
+  };
+
   const handleBackToOverview = () => {
     setSelectedAsset(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -99,6 +119,11 @@ export default function App() {
   // Find active alert for the currently selected asset (if any)
   const activeAlertForSelectedAsset = selectedAsset
     ? alerts.find((a) => a.symbol === selectedAsset.symbol && a.active && !a.triggered)
+    : undefined;
+
+  // Find live quote for the currently selected asset (if any)
+  const liveQuoteForSelectedAsset = selectedAsset
+    ? awesomeQuotes[selectedAsset.symbol]
     : undefined;
 
   return (
@@ -166,14 +191,26 @@ export default function App() {
             onAskAi={handleOpenAiWithPrompt}
             onOpenPriceAlertForAsset={(symbol) => handleOpenPriceAlertModal(symbol)}
             activeAlertForAsset={activeAlertForSelectedAsset}
+            liveQuote={liveQuoteForSelectedAsset}
+            lastCreateDate={awesomeCreateDate}
           />
         ) : (
           /* =========================================================================
              VIEW 1: VISÃO GERAL (PÁGINA INICIAL DE MERCADOS)
              ========================================================================= */
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 pt-3">
+            {/* 1. AWESOMEAPI REAL-TIME TICKER MODULE (Live Câmbio & Cripto) */}
+            <AwesomeLiveTicker
+              quotes={awesomeQuotes}
+              lastCreateDate={awesomeCreateDate}
+              isRefreshing={isAwesomeRefreshing}
+              secondsUntilNextPoll={secondsUntilNextPoll}
+              onRefresh={refreshAwesomeRates}
+              onSelectAssetBySymbol={handleSelectAssetBySymbol}
+            />
+
             {/* Top Market Banner / Live Status */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-4 pb-1 text-xs text-slate-400">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 pb-1 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#00c853] animate-pulse" />
                 <span className="font-semibold text-slate-300">Mercados Globais em Tempo Real</span>
@@ -189,7 +226,7 @@ export default function App() {
                   <span>{alerts.length} Metas de Preço no LocalStorage</span>
                 </button>
                 <span className="hidden md:inline">•</span>
-                <span className="hidden md:inline">DinhEuro AI Sync: BACEN • BCE • Fed • NYSE • B3</span>
+                <span className="hidden md:inline">AwesomeAPI • BACEN • BCE • Fed • NYSE • B3</span>
               </div>
             </div>
 
@@ -198,6 +235,7 @@ export default function App() {
               activeRegion={activeRegion}
               onSelectAsset={handleSelectAsset}
               selectedSymbol={selectedAsset?.symbol}
+              liveQuotes={awesomeQuotes}
             />
 
             {/* FOREX REAL-TIME CONVERTER MODULE (Featured prominently on "Moedas" tab or accessible via modal) */}

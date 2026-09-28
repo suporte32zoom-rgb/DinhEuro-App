@@ -14,8 +14,10 @@ import {
   DollarSign,
   Layers,
   ArrowUpRight,
-  ShieldAlert
+  ShieldAlert,
+  Radio
 } from "lucide-react";
+import { fetchAwesomeRates, formatBrl, formatNumberPtBr } from "../services/awesomeApi";
 
 export interface CurrencyInfo {
   code: string;
@@ -68,23 +70,28 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [liveRates, setLiveRates] = useState<Record<string, number>>({});
 
-  // Fetch live market rates from backend on mount
+  const [createDateStr, setCreateDateStr] = useState<string>("");
+
+  // Fetch live market rates from AwesomeAPI on mount
   const fetchLiveRates = async () => {
     setIsRefreshing(true);
     try {
-      const res = await fetch("/api/market/rates");
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.rates) {
-          // Update live rates mapping
-          const ratesMap: Record<string, number> = {};
-          if (data.rates["EUR/BRL"]) ratesMap["EUR_BRL"] = data.rates["EUR/BRL"].spot;
-          if (data.rates["USD/BRL"]) ratesMap["USD_BRL"] = data.rates["USD/BRL"].spot;
-          if (data.rates["EUR/USD"]) ratesMap["EUR_USD"] = data.rates["EUR/USD"].spot;
-          if (data.rates["GBP/BRL"]) ratesMap["GBP_BRL"] = data.rates["GBP/BRL"].spot;
-          setLiveRates(ratesMap);
-          setLastUpdated(new Date());
+      const result = await fetchAwesomeRates();
+      if (result && result.quotes) {
+        const ratesMap: Record<string, number> = {};
+        if (result.quotes.EURBRL) ratesMap["EUR_BRL"] = result.quotes.EURBRL.bid;
+        if (result.quotes.USDBRL) ratesMap["USD_BRL"] = result.quotes.USDBRL.bid;
+        if (result.quotes.GBPBRL) ratesMap["GBP_BRL"] = result.quotes.GBPBRL.bid;
+        if (result.quotes.BTCBRL) ratesMap["BTC_BRL"] = result.quotes.BTCBRL.bid;
+        if (result.quotes.ETHBRL) ratesMap["ETH_BRL"] = result.quotes.ETHBRL.bid;
+
+        if (result.quotes.EURBRL && result.quotes.USDBRL && result.quotes.USDBRL.bid > 0) {
+          ratesMap["EUR_USD"] = result.quotes.EURBRL.bid / result.quotes.USDBRL.bid;
         }
+
+        setLiveRates(ratesMap);
+        setCreateDateStr(result.lastCreateDate);
+        setLastUpdated(new Date());
       }
     } catch (e) {
       console.warn("Using fallback static forex rates:", e);
@@ -148,9 +155,11 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
 
   // Copy result to clipboard
   const handleCopyResult = () => {
-    const textToCopy = `${amount.toLocaleString()} ${fromCode} = ${convertedValue.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: toCurrency.decimals,
+    const toDec = Math.max(0, Math.min(20, toCurrency.decimals ?? 2));
+    const toMinDec = Math.min(2, toDec);
+    const textToCopy = `${amount.toLocaleString("pt-BR")} ${fromCode} = ${convertedValue.toLocaleString("pt-BR", {
+      minimumFractionDigits: toMinDec,
+      maximumFractionDigits: toDec,
     })} ${toCode} (Taxa: 1 ${fromCode} = ${exchangeRate.toFixed(4)} ${toCode})`;
 
     navigator.clipboard.writeText(textToCopy);
@@ -299,9 +308,9 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
 
           <div className="flex items-center gap-3">
             <div className="w-full text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200 font-mono truncate select-all">
-              {convertedValue.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: toCurrency.decimals,
+              {convertedValue.toLocaleString("pt-BR", {
+                minimumFractionDigits: Math.min(2, Math.max(0, Math.min(20, toCurrency.decimals ?? 2))),
+                maximumFractionDigits: Math.max(0, Math.min(20, toCurrency.decimals ?? 2)),
               })}
             </div>
 
@@ -442,9 +451,9 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
                 </div>
 
                 <div className="font-mono font-bold text-white text-sm truncate group-hover:text-emerald-400 transition-colors">
-                  {item.total.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: item.decimals > 2 ? 4 : 2,
+                  {item.total.toLocaleString("pt-BR", {
+                    minimumFractionDigits: Math.min(2, Math.max(0, Math.min(20, item.decimals ?? 2))),
+                    maximumFractionDigits: Math.max(Math.min(2, Math.max(0, Math.min(20, item.decimals ?? 2))), Math.min(20, item.decimals > 2 ? 4 : 2)),
                   })}
                 </div>
 

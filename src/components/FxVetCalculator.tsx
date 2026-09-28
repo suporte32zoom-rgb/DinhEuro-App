@@ -74,7 +74,7 @@ Parâmetros:
 - Spread do Provedor: ${providerSpread}%
 - Tarifa Fixa de Envio: ${fixedFee} ${fromCurrency}
 - VET Calculado: ${result?.vet || "N/A"}
-- Valor Líquido Entregue: ${result?.netReceived?.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${toCurrency}
+- Valor Líquido Entregue: ${result?.netReceived ? result.netReceived.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"} ${toCurrency}
 
 Avalie se esta estrutura de custos é ótima, quais documentos fiscais e regulatórios (BACEN / Receita Federal / Residência Fiscal) são exigidos e compare os trilhos SEPA/SWIFT versus PIX.`;
 

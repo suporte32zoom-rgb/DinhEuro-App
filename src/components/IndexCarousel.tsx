@@ -1,12 +1,14 @@
 import React, { useRef } from "react";
-import { ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight, Radio } from "lucide-react";
 import { MarketAsset, MarketRegion } from "../types";
 import { ALL_ASSETS } from "../data/marketData";
+import { NormalizedQuote, formatBrl, formatNumberPtBr } from "../services/awesomeApi";
 
 interface IndexCarouselProps {
   activeRegion: MarketRegion;
   onSelectAsset: (asset: MarketAsset) => void;
   selectedSymbol?: string;
+  liveQuotes?: Record<string, NormalizedQuote>;
 }
 
 // Mini SVG Sparkline Component for Google Finance look
@@ -60,6 +62,7 @@ export const IndexCarousel: React.FC<IndexCarouselProps> = ({
   activeRegion,
   onSelectAsset,
   selectedSymbol,
+  liveQuotes,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -102,8 +105,13 @@ export const IndexCarousel: React.FC<IndexCarouselProps> = ({
         className="flex items-stretch gap-3.5 overflow-x-auto no-scrollbar py-2 px-1 scroll-smooth"
       >
         {regionAssets.map((asset) => {
-          const isPositive = asset.changePercent >= 0;
+          const liveQuote = liveQuotes?.[asset.symbol];
+          const displayPrice = liveQuote ? liveQuote.bid : asset.price;
+          const displayChange = liveQuote ? liveQuote.change : asset.change;
+          const displayPercent = liveQuote ? liveQuote.changePercent : asset.changePercent;
+          const isPositive = displayPercent >= 0;
           const isSelected = selectedSymbol === asset.symbol;
+          const isCrypto = asset.region === "Criptomoedas";
 
           return (
             <div
@@ -118,9 +126,14 @@ export const IndexCarousel: React.FC<IndexCarouselProps> = ({
               {/* Card Header: Symbol & Name */}
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
-                    {asset.symbol}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
+                      {asset.symbol}
+                    </span>
+                    {liveQuote && (
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="AwesomeAPI Live Feed" />
+                    )}
+                  </div>
                   <span className="text-[10px] font-mono text-slate-400 bg-[#0e1117] px-1.5 py-0.5 rounded border border-[#30363d]">
                     {asset.exchange}
                   </span>
@@ -135,9 +148,9 @@ export const IndexCarousel: React.FC<IndexCarouselProps> = ({
                 <div>
                   <div className="text-lg sm:text-xl font-mono font-extrabold text-white tracking-tight">
                     {asset.currency === "BRL" ? "R$ " : asset.currency === "EUR" ? "€ " : "$ "}
-                    {asset.price.toLocaleString(undefined, {
-                      minimumFractionDigits: asset.price < 10 ? 4 : 2,
-                      maximumFractionDigits: asset.price < 10 ? 4 : 2,
+                    {displayPrice.toLocaleString("pt-BR", {
+                      minimumFractionDigits: isCrypto ? 2 : displayPrice < 10 ? 4 : 2,
+                      maximumFractionDigits: isCrypto ? 2 : displayPrice < 10 ? 4 : 2,
                     })}
                   </div>
 
@@ -153,12 +166,12 @@ export const IndexCarousel: React.FC<IndexCarouselProps> = ({
                     )}
                     <span>
                       {isPositive ? "+" : ""}
-                      {asset.change.toLocaleString(undefined, {
-                        minimumFractionDigits: asset.price < 10 ? 4 : 2,
-                        maximumFractionDigits: asset.price < 10 ? 4 : 2,
+                      {displayChange.toLocaleString("pt-BR", {
+                        minimumFractionDigits: isCrypto ? 2 : displayPrice < 10 ? 4 : 2,
+                        maximumFractionDigits: isCrypto ? 2 : displayPrice < 10 ? 4 : 2,
                       })}
                     </span>
-                    <span>({isPositive ? "+" : ""}{asset.changePercent.toFixed(2)}%)</span>
+                    <span>({isPositive ? "+" : ""}{displayPercent.toFixed(2)}%)</span>
                   </div>
                 </div>
 
